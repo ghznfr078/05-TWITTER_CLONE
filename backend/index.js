@@ -12,7 +12,10 @@ app.use(cookieParser());
 
 // import routes
 import authRouter from "./routes/auth.routes.js";
+import userRouter from "./routes/user.routes.js";
+
 app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
