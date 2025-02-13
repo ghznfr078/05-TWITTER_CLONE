@@ -19,9 +19,11 @@ app.use(cookieParser());
 // import routes
 import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
+import postRouter from "./routes/post.routes.js";
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+app.use("/api/posts", postRouter);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
