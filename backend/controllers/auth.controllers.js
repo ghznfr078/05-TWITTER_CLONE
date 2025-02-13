@@ -1,10 +1,30 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
-import { generateTokenAndSetCookie } from "../utils/generateToken.js";
+import jwt from "jsonwebtoken";
+import uploadOnCloudinary from "../config/cloudinary.js";
+
+// generate Token
+
+const generateTokenAndSetCookie = (res, userId) => {
+  const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
+
+  const options = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  };
+  res.cookie("token", token, options);
+};
 
 const signUp = async (req, res) => {
   try {
     const { fullName, username, email, password } = req.body;
+
+    const profileImage = req.files?.profileImage[0];
+    const coverImage = req.files?.coverImage[0];
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -55,6 +75,17 @@ const signUp = async (req, res) => {
       email,
       password: hashedPassword,
     });
+
+    // upload images
+    if (profileImage) {
+      const profileImageUrl = await uploadOnCloudinary(profileImage);
+      newUser.profileImage = profileImageUrl;
+    }
+
+    if (coverImage) {
+      const coverImageUrl = await uploadOnCloudinary(coverImage);
+      newUser.coverImage = coverImageUrl;
+    }
 
     if (newUser) {
       generateTokenAndSetCookie(res, newUser._id);
