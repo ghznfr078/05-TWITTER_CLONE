@@ -22,9 +22,10 @@ const generateTokenAndSetCookie = (res, userId) => {
 const signUp = async (req, res) => {
   try {
     const { fullName, username, email, password } = req.body;
+    console.log(username);
 
-    const profileImage = req.files?.profileImage[0];
-    const coverImage = req.files?.coverImage[0];
+    const profileImage = req.files?.profileImage?.[0];
+    const coverImage = req.files?.coverImage?.[0];
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -87,19 +88,17 @@ const signUp = async (req, res) => {
       newUser.coverImage = coverImageUrl;
     }
 
-    if (newUser) {
-      generateTokenAndSetCookie(res, newUser._id);
-      await newUser.save();
+    generateTokenAndSetCookie(res, newUser._id);
+    await newUser.save();
 
-      return res.status(201).json({
-        success: true,
-        message: "Your account has been created!",
-        user: {
-          ...newUser._doc,
-          password: undefined,
-        },
-      });
-    }
+    return res.status(201).json({
+      success: true,
+      message: "Your account has been created!",
+      user: {
+        ...newUser._doc,
+        password: undefined,
+      },
+    });
   } catch (error) {
     return res.status(400).json({
       success: false,
